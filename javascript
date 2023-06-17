@@ -1,97 +1,133 @@
-const calculator = document.querySelector(".calculator");
-const displayPrevious = document.querySelector(".previous");
-const displayCurrent = document.querySelector(".current");
-const clearBtn = document.querySelector(".clear");
-const deleteBtn = document.querySelector(".delete");
-const numberBtns = document.querySelectorAll(".number");
-const operatorBtns = document.querySelectorAll(".operator");
-const equalsBtn = document.querySelector(".equals");
+const display = document.querySelector('.calculator-display');
 
-let currentOperand = "";
-let previousOperand = "";
-let operator = undefined;
+const numberButtons = document.querySelectorAll('[data-number]');
 
-function appendNumber(number) {
-  if (number === "." && currentOperand.includes(".")) return;
-  currentOperand = currentOperand.toString() + number.toString();
+const operatorButtons = document.querySelectorAll('[data-operator]');
+
+const clearButton = document.querySelector('[data-clear]');
+
+const equalsButton = document.querySelector('[data-equals]');
+
+ 
+
+let currentValue = '';
+
+let previousValue = '';
+
+let currentOperator = null;
+
+let shouldResetDisplay = false;
+
+ 
+
+numberButtons.forEach(button => {
+
+button.addEventListener('click', () => {
+
+if (shouldResetDisplay) {
+
+display.value = '';
+
+shouldResetDisplay = false;
+
 }
 
-function chooseOperator(selectedOperator) {
-  if (currentOperand === "") return;
-  if (previousOperand !== "") {
-    calculate();
-  }
-  operator = selectedOperator;
-  previousOperand = currentOperand;
-  currentOperand = "";
-}
+display.value += button.textContent;
+
+});
+
+});
+
+ 
+
+operatorButtons.forEach(button => {
+
+button.addEventListener('click', () => {
+
+if (currentOperator) calculate();
+
+previousValue = display.value;
+
+currentOperator = button.dataset.operatorType;
+
+shouldResetDisplay = true;
+
+});
+
+});
+
+ 
+
+equalsButton.addEventListener('click', () => {
+
+if (!currentOperator) return;
+
+calculate();
+
+});
+
+ 
+
+clearButton.addEventListener('click', () => {
+
+currentValue = '';
+
+previousValue = '';
+
+currentOperator = null;
+
+display.value = '';
+
+});
+
+ 
 
 function calculate() {
-  let result;
-  const prev = parseFloat(previousOperand);
-  const current = parseFloat(currentOperand);
-  if (isNaN(prev) || isNaN(current)) return;
-  switch (operator) {
-    case "+":
-      result = prev + current;
-      break;
-    case "-":
-      result = prev - current;
-      break;
-    case "*":
-      result = prev * current;
-      break;
-    case "/":
-      result = prev / current;
-      break;
-    default:
-      return;
-  }
-  currentOperand = result;
-  operator = undefined;
-  previousOperand = "";
+
+currentValue = display.value;
+
+let result;
+
+ 
+
+switch (currentOperator) {
+
+case 'add':
+
+result = parseFloat(previousValue) + parseFloat(currentValue);
+
+break;
+
+case 'subtract':
+
+result = parseFloat(previousValue) - parseFloat(currentValue);
+
+break;
+
+case 'multiply':
+
+result = parseFloat(previousValue) * parseFloat(currentValue);
+
+break;
+
+case 'divide':
+
+result = parseFloat(previousValue) / parseFloat(currentValue);
+
+break;
+
+default:
+
+return;
+
 }
 
-function updateDisplay() {
-  displayCurrent.innerText = currentOperand;
-  displayPrevious.innerText = previousOperand;
+ 
+
+display.value = result;
+
+currentOperator = null;
+
+shouldResetDisplay = true;
+
 }
-
-function clear() {
-  currentOperand = "";
-  previousOperand = "";
-  operator = undefined;
-}
-
-function deleteNumber() {
-  currentOperand = currentOperand.toString().slice(0, -1);
-}
-
-numberBtns.forEach((button) => {
-  button.addEventListener("click", () => {
-    appendNumber(button.value);
-    updateDisplay();
-  });
-});
-
-operatorBtns.forEach((button) => {
-  button.addEventListener("click", () => {
-    chooseOperator(button.value);
-    updateDisplay();
-  });
-});
-
-equalsBtn.addEventListener("click", () => {
-  calculate();
-  updateDisplay();
-});
-
-clearBtn.addEventListener("click", () => {
-  clear();
-  updateDisplay();
-});
-
-deleteBtn.addEventListener("click", () => {
-  deleteNumber();
-  updateDisplay();
-});
